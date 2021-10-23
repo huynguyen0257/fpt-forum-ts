@@ -1,0 +1,44 @@
+{
+  "name": "fpt-forum-ts",
+  "version": "1.0.0",
+  "description": "",
+  "main": "src/index.ts",
+  "scripts": {
+    "predev": "tslint -c tslint.json -p tsconfig.json --fix",
+    "dev": "nodemon",
+    "build": "rimraf ./build && tsc",
+    "test": "jest"
+  },
+  "_moduleAliases": {
+    "@": "./src"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "camelcase-keys": "^7.0.1",
+    "cookie-parser": "^1.4.5",
+    "decko": "^1.2.0",
+    "dotenv": "^10.0.0",
+    "express": "^4.17.1",
+    "express-validator": "^6.13.0",
+    "module-alias": "^2.2.2",
+    "mongoose": "^6.0.11",
+    "ramda": "^0.27.1",
+    "reflect-metadata": "^0.1.13",
+    "rimraf": "^3.0.2",
+    "typedi": "^0.10.0"
+  },
+  "devDependencies": {
+    "@types/bcryptjs": "^2.4.2",
+    "@types/cookie-parser": "^1.4.2",
+    "@types/dotenv": "^8.2.0",
+    "@types/express": "^4.17.13",
+    "@types/node": "^16.11.1",
+    "@types/ramda": "^0.27.45",
+    "tslint": "^6.1.3",
+    "typescript": "^4.4.4",
+    "winston": "^3.3.3"
+  }
+}
