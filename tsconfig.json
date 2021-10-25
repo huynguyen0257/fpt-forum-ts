@@ -3,6 +3,8 @@
     "module": "commonjs",
     "esModuleInterop": true,
     "target": "es6",
+    "lib": ["es6", "dom"],
+    "types": ["reflect-metadata"],
     "noImplicitAny": true,
     "moduleResolution": "node",
     "sourceMap": true,
@@ -11,8 +13,8 @@
     "paths": {
       "@/*": ["./src/*"]
     },
-		"experimentalDecorators": true,
-    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true
   },
   "include": ["./src/**/*"]
 }

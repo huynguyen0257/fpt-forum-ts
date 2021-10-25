@@ -11,7 +11,9 @@ export interface IUser extends Document {
   classes: object[] | null;
 }
 
-export interface UserModel extends Model<IUser> {}
+export interface UserModel extends Model<IUser> {
+  // fromJson(data:any): IObject;
+}
 
 export class User {
   private _model: Model<IUser>;

@@ -5,8 +5,9 @@ import logger from "./logger";
 import config from "../config";
 import { AppError } from "@/utils/appError";
 import routes from "@/api/routes";
+import { Container } from "inversify";
 
-export default async (app: express.Application) => {
+export default async (app: express.Application, myContainer: Container) => {
   async function setupViewEngine() {
     // app.use(logger('dev'));
     app.use(express.json());
@@ -29,7 +30,7 @@ export default async (app: express.Application) => {
   }
 
   async function setupRoutes() {
-    app.use(config.api.prefix, routes());
+    app.use(config.api.prefix, routes(myContainer));
   }
 
   async function setupHandleUndefinedRoutes() {
@@ -69,8 +70,7 @@ export default async (app: express.Application) => {
           logger.error(err.stack);
         }
         res.status(err.status).json({
-          error: err,
-          stack: err.stack,
+          error: err.message || err,
         }).end();
       }
     );

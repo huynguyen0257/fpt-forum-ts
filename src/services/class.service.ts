@@ -1,33 +1,29 @@
-import { Service, Inject, Container } from "typedi";
-import { IClass, ClassModel } from "@/models/class";
-import { FilterQuery } from "mongoose";
-import { User } from "@/models";
+import { Service, Inject } from "typedi";
+import { ClassDoc } from "@/models/class";
+import { User, IClass } from "@/models";
+import { BaseService, IService } from "./base.service";
+import { inject, injectable } from "inversify";
+import { TYPES } from "@/utils/type";
+import { IClassRepository } from "@/repositories/class.repo";
+
+
+export interface IClassService extends IService<ClassDoc>{}
 
 @Service()
-export default class ClassService {
-  constructor(@Inject("classModel") private _classModel: ClassModel) {}
-
-  public async getOne(query: FilterQuery<IClass>): Promise<IClass> {
-    const result = await this._classModel.findOne(query);
-    return result;
+@injectable()
+export default class ClassService extends BaseService<ClassDoc, IClassRepository> implements IClassService {
+  constructor(@inject(TYPES.ClassRepository) _repository: IClassRepository) {
+    super(_repository);
   }
 
-  public async getById(id: string) {
-    return await this._classModel.findById(id);
-  }
-
-  public async getAll() {
-    const resultList = await this._classModel
-      .find()
-      .populate({ path: "students", model: User });
-    return resultList;
-  }
-
-  public async create(model: any) {
-    try {
-      return await this._classModel.create(model);
-    } catch (error) {
-      throw error;
-    }
-  }
+  // public async find(
+  //   cond?: object,
+  //   fields?: object,
+  //   options?: object
+  // ): Promise<ClassDoc[]> {
+  //   const resultList = await this._model
+  //     .find(cond, fields, options)
+  //     .populate({ path: "students", model: User });
+  //   return resultList;
+  // }
 }

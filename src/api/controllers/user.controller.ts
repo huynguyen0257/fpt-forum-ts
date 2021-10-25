@@ -6,7 +6,7 @@ import { AppError } from '@/utils/appError';
 export default class UserController {
   private _userService = new UserService();
 
-  @bind
+  @bind // use to pass {this} to function
   public async getAll(
     req: Request,
     res: Response,

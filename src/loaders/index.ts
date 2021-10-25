@@ -1,25 +1,30 @@
 import express from "express";
 import expressLoader from "./express";
 import logger from "./logger";
-import mongooseLoader from "./mongoose";
+import MongooseLoader from "./mongoose";
 import dependencyInjector from "./dependencyInjector";
 import { User, Class } from "@/models";
+import InversifyLoader from "./inversify";
 
 export default async (expressApp: express.Application) => {
-  const mongoConnection = await mongooseLoader();
+  const mongoose = new MongooseLoader().connection;
+  // const mongoConnection = mongoose.db; // use for agenda
   logger.info("✌️ DB loaded and connected!");
 
-  require('@/models');
-  const userModel = { name: "userModel", model: new User().model };
-  const classModel = { name: "classModel", model: new Class().model };
-  await dependencyInjector({
-    mongoConnection,
-    models: [
-      userModel,
-      classModel
-    ],
-  });
+  const myContainer = new InversifyLoader().container;
+  logger.info("✌️ Inversify loaded!");
 
-  await expressLoader(expressApp);
+  // require('@/models');
+  // const userModel = { name: "userModel", model: new User().model };
+  // // const classModel = { name: "classModel", model: new Class().model };
+  // await dependencyInjector({
+  //   mongoConnection,
+  //   models: [
+  //     userModel,
+  //     // classModel
+  //   ],
+  // });
+
+  await expressLoader(expressApp, myContainer);
   logger.info("✌️ Express loaded");
 };
