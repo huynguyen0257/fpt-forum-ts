@@ -1,7 +1,6 @@
-import { AppError } from "@/utils/appError";
-import { Request, Response, NextFunction } from "express";
+import { AppError } from '@/utils/appError';
+import { Request, Response, NextFunction } from 'express';
 import { validationResult } from 'express-validator';
-
 
 export class ValidateRequest {
   public validateRequest(
@@ -12,7 +11,7 @@ export class ValidateRequest {
     const errors = validationResult(req);
 
     if (!errors.isEmpty()) {
-      return next(new AppError(400,errors.array()));
+      return next(new AppError(400, errors.array()));
     }
 
     return next();

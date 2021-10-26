@@ -1,13 +1,6 @@
-import { Container } from "typedi";
-import {
-  Document,
-  Model,
-  Query,
-  Types,
-  FilterQuery,
-} from "mongoose";
-import { DeleteResult, UpdateResult } from "mongodb";
-import { injectable, unmanaged } from "inversify";
+import { Document, Model, Query, Types, FilterQuery } from 'mongoose';
+import { DeleteResult, UpdateResult } from 'mongodb';
+import { injectable, unmanaged } from 'inversify';
 
 export interface IRepository<T extends Document> {
   findById: (id: string) => Query<T, any>;
@@ -46,10 +39,7 @@ export abstract class BaseRepository<T extends Document>
   }
 
   // public updateOne(id: Types.ObjectId, data: T): Query<UpdateWriteOpResult, T> {
-  public async updateOne(
-    id: Types.ObjectId,
-    data: T
-  ): Promise<UpdateResult> {
+  public async updateOne(id: Types.ObjectId, data: T): Promise<UpdateResult> {
     return this._model.updateOne({ _id: id } as FilterQuery<T>, data as object);
   }
 

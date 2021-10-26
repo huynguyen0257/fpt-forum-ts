@@ -1,6 +1,7 @@
-import { Schema, model, Document, Model } from "mongoose";
-import IObject from "@/utils/object";
-import R from "ramda";
+import { Schema, model, Document, Model } from 'mongoose';
+import IObject from '@/utils/object';
+import R from 'ramda';
+import { injectable } from 'inversify';
 
 export interface IUser extends Document {
   username: string;
@@ -11,8 +12,17 @@ export interface IUser extends Document {
   classes: object[] | null;
 }
 
+export interface UserDoc extends Document {
+  username: string;
+  password: string;
+  fullName: string;
+  phoneNumber: string;
+  emailAddress: string;
+  classes: object[] | null;
+}
+
 export interface UserModel extends Model<IUser> {
-  // fromJson(data:any): IObject;
+  build(data: IUser): UserDoc;
 }
 
 export class User {
@@ -28,8 +38,8 @@ export class User {
         required: true,
         match: [
           /(03|05|07|08|09|01[2|6|8|9])+([0-9]{8})\b/,
-          "Please fill in a valid phone number",
-        ],
+          'Please fill in a valid phone number'
+        ]
       },
       emailAddress: {
         type: String,
@@ -39,26 +49,17 @@ export class User {
         trim: true,
         match: [
           /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/,
-          "Please fill a valid email address",
-        ],
+          'Please fill a valid email address'
+        ]
       },
-      classes: [{ type: Schema.Types.ObjectId, ref: "Classes" }],
+      classes: [{ type: Schema.Types.ObjectId, ref: 'Class' }]
     });
 
-    schema.methods.fromJson = (data: any) => {
-      const user: IObject = {};
-      R.forEachObjIndexed<IUser>((value: string, key: string) => {
-        // if (key == 'transactions' && value) {
-        //     block[key] = Transactions.fromJson(value);
-        // } else {
-        //     block[key] = value;
-        // }
-        user[key] = value;
-      }, data);
-      return user;
+    schema.statics.build = (data: IUser): UserDoc => {
+      return new this._model(data);
     };
 
-    this._model = model<IUser>("User", schema);
+    this._model = model<IUser>('User', schema);
   }
 
   public get model(): Model<IUser> {

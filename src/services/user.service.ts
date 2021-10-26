@@ -1,35 +1,28 @@
-import { Service, Inject, Container } from "typedi";
-import { IUser, UserModel } from "@/models";
-import { FilterQuery } from "mongoose";
+import { User, IUser, UserDoc, ClassDoc } from '@/models';
+import { BaseService, IService } from './base.service';
+import { inject, injectable } from 'inversify';
+import { TYPES } from '@/utils/type';
+import { IUserRepository } from '@/repositories';
+// import ClassModel = require('@/models/schemas/class.schema');
+// import mongoose from 'mongoose';
 
-@Service()
-export default class UserService {
-    private _userModel: UserModel;
-  constructor() {
-    this._userModel = Container.get('userModel');
+export interface IUserService extends IService<UserDoc> {}
+
+@injectable()
+export class UserService
+  extends BaseService<UserDoc, IUserRepository>
+  implements IUserService
+{
+  constructor(@inject(TYPES.IUserRepository) _repository: IUserRepository) {
+    super(_repository);
   }
 
-  public async getOne(query: FilterQuery<IUser>): Promise<IUser> {
-    // const user = await this._userModel.findOne({emailAddress}).populate("classes");
-    const user = await this._userModel.findOne(query);
-    return user;
+  public async findById(id: string): Promise<UserDoc> {
+    return await this._repository.findById(id);
+    // .populate({ path: 'classes', model: mongoose.model<ClassDoc>('Class') });
   }
-
-  public async getById(id: string) {
-    return await this._userModel.findById(id).populate("classes");
-  }
-
-  public async getAll() {
-    const users = await this._userModel.find().populate("classes");
-    return users;
-  }
-
-  public async create(model: any) {
-    // var user = new this._userModel({username: username, password: password});
-    try {
-      return await this._userModel.create(model);
-    } catch (error) {
-      throw error;
-    }
+  public async findOne(cond?: object): Promise<UserDoc> {
+    return await this._repository.findOne(cond);
+    // .populate({ path: 'classes', model: mongoose.model<ClassDoc>('Class') });
   }
 }

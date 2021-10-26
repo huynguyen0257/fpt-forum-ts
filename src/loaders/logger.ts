@@ -1,8 +1,8 @@
-import winston from "winston";
-import config from "../config"
+import winston from 'winston';
+import config from '../config';
 
 const transports = [];
-if (config.nodeEnv !== "development") {
+if (config.nodeEnv !== 'development') {
   transports.push(new winston.transports.Console());
 } else {
   transports.push(
@@ -11,7 +11,7 @@ if (config.nodeEnv !== "development") {
         winston.format.cli(),
         winston.format.errors(),
         winston.format.splat()
-      ),
+      )
     })
   );
 }
@@ -21,13 +21,13 @@ const LoggerInstance = winston.createLogger({
   levels: winston.config.npm.levels,
   format: winston.format.combine(
     winston.format.timestamp({
-      format: "YYYY-MM-DD HH:mm:ss",
+      format: 'YYYY-MM-DD HH:mm:ss'
     }),
     winston.format.errors({ stack: true }),
     winston.format.splat(),
     winston.format.json()
   ),
-  transports,
+  transports
 });
 
 export default LoggerInstance;

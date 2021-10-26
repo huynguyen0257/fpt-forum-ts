@@ -1,16 +1,19 @@
-import container from '@/loaders/inversify'
-import { bind } from "decko";
-import ClassService, { IClassService } from "@/services/class.service";
-import { NextFunction, Request, Response } from "express";
-import { AppError } from "@/utils/appError";
-import { contains } from "ramda";
-import { ResMessage } from "@/utils/resMessage";
-import { inject, injectable } from 'inversify';
+import container from '@/loaders/inversify';
+import { bind } from 'decko';
+import { NextFunction, Request, Response } from 'express';
+import { AppError } from '@/utils/appError';
+import { contains } from 'ramda';
+import { ResMessage } from '@/utils/resMessage';
+import { Container, inject, injectable } from 'inversify';
 import { TYPES } from '@/utils/type';
+import { ClassService } from '@/services';
 
 @injectable()
 export class ClassController {
-  @inject(TYPES.ClassService) private _classService: ClassService;
+  private _classService: ClassService;
+  constructor(myContainer: Container) {
+    this._classService = myContainer.get(TYPES.IClassService);
+  }
 
   @bind
   public async getById(
@@ -19,12 +22,11 @@ export class ClassController {
     next: NextFunction
   ): Promise<Response | void> {
     try {
-      console.log(`req.body.id: ${req.params.id}`);
       const classRes = await this._classService.findById(req.params.id);
       if (classRes) {
         return res.status(200).json(classRes);
       }
-      return res.status(404).json({ message: "Not Found" });
+      return res.status(404).json({ message: 'Not Found' });
     } catch (err) {
       return next(err);
     }
@@ -41,8 +43,8 @@ export class ClassController {
         ? {
             code: {
               $regex: code,
-              $options: "i",
-            },
+              $options: 'i'
+            }
           }
         : {};
       const classes = this._classService.find(queryOptions);
@@ -61,7 +63,7 @@ export class ClassController {
     try {
       const { code, maxStudent } = req.body;
       const result = await this._classService.create({ code, maxStudent });
-      return next(new ResMessage(201, "Create successful"));
+      return next(new ResMessage(201, 'Create successful'));
     } catch (error) {
       return next(error);
     }
@@ -78,11 +80,11 @@ export class ClassController {
       if (model) {
         const result = await this._classService.update(model._id, {
           code,
-          maxStudent,
+          maxStudent
         });
-        return next(new ResMessage(200, "Update successful"));
+        return next(new ResMessage(200, 'Update successful'));
       }
-      return next(new ResMessage(404, "Not Found"));
+      return next(new ResMessage(404, 'Not Found'));
     } catch (error) {
       return next(error);
     }
@@ -101,7 +103,7 @@ export class ClassController {
         await this._classService.delete(model._id);
         return next(new ResMessage(200, `Delete class code ${code}`));
       }
-      return next(new ResMessage(404, "Not Found"));
+      return next(new ResMessage(404, 'Not Found'));
     } catch (error) {
       return next(error);
     }

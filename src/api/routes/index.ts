@@ -1,15 +1,18 @@
-import UserRoute from "./user.route";
-import { Router } from "express";
-import ClassRoute from "./class.route";
-import { Container } from "inversify";
+import UserRoute from './user.route';
+import ClassRoute from './class.route';
+import { Router } from 'express';
+import { Container } from 'inversify';
 
-export default (myContainer: Container) => {
-  // const userRoute = new UserRoute();
-  const classRoute = new ClassRoute(myContainer);
-  const app = Router();
+export default class MyRoute {
+  private readonly _route: Router;
+  constructor(myContainer: Container) {
+    this._route = Router();
+    // app.use("/auth", authRoute());
+    this._route.use('/class', new ClassRoute(myContainer).route);
+    // this._route.use('/user', new UserRoute(myContainer).route);
+  }
 
-  //   app.use("/auth", authRoute());
-  // app.use("/user", userRoute.route);
-  app.use("/class", classRoute.route);
-  return app;
-};
+  public get route(): Router {
+    return this._route;
+  }
+}

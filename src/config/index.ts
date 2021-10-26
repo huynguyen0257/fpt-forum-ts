@@ -1,7 +1,7 @@
-import dotenv from "dotenv";
+import dotenv from 'dotenv';
 
 const envFound = dotenv.config({
-  path: "./.env.example",
+  path: './.env.example'
 });
 if (envFound.error) {
   // This error should crash whole process
@@ -28,15 +28,15 @@ export default {
    * Used by winston logger
    */
   logs: {
-    level: process.env.LOG_LEVEL || "silly",
+    level: process.env.LOG_LEVEL || 'silly'
   },
 
   /**
    * API configs
    */
   api: {
-    prefix: "/api/v1",
+    prefix: '/api/v1'
   },
 
-  nodeEnv: process.env.NODE_ENV || "product"
+  nodeEnv: process.env.NODE_ENV || 'product'
 };

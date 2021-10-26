@@ -5,6 +5,6 @@ export class AppError {
   constructor(status: number, error: any, message?: string) {
     this.status = status;
     this.error = error;
-    this.message= message;
+    this.message = message;
   }
 }

@@ -1,7 +1,7 @@
-import express from "express";
-import config from "./config";
-import logger from "./loaders/logger";
-import "module-alias/register";
+import express from 'express';
+import config from './config';
+import logger from './loaders/logger';
+import 'module-alias/register';
 import 'reflect-metadata';
 
 async function startServer() {
@@ -12,17 +12,17 @@ async function startServer() {
    * Well, at least in node 10 without babel and at the time of writing
    * So we are using good old require.
    */
-  await require("./loaders").default(app);
+  await require('./loaders').default(app);
 
   app
     .listen(config.port, () => {
-        logger.info(`
+      logger.info(`
         ##################################################
         🛡️\tServer listening on port: ${config.port}\t\t🛡️
         ##################################################
       `);
     })
-    .on("error", (err) => {
+    .on('error', (err) => {
       logger.error(err);
       process.exit(1);
     });

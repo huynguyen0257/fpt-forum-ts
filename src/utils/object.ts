@@ -1,3 +1,3 @@
 export default interface IObject {
-    [key: string]: any
+  [key: string]: any;
 }

@@ -1,7 +1,6 @@
-import { Container } from "typedi";
-import { Document, FilterQuery, Model, Types } from "mongoose";
-import { IRepository } from "@/repositories/base.repo";
-import { injectable, unmanaged } from "inversify";
+import { Document, FilterQuery, Model, Types } from 'mongoose';
+import { IRepository } from '@/repositories/base.repo';
+import { injectable, unmanaged } from 'inversify';
 
 export interface IService<T extends Document> {
   findById: (id: string) => Promise<T>;
@@ -14,9 +13,11 @@ export interface IService<T extends Document> {
 
 @injectable()
 // Open/ Close Principle in SOLID which BaseService Open for extends but Close for modification
-export abstract class BaseService<T extends Document, R extends IRepository<T>> implements IService<T> {
+export abstract class BaseService<T extends Document, R extends IRepository<T>>
+  implements IService<T>
+{
   public _repository: R;
-  constructor(@unmanaged() repository: R) {
+  constructor(repository: R) {
     this._repository = repository;
   }
   public async findById(id: string): Promise<T> {
@@ -39,10 +40,7 @@ export abstract class BaseService<T extends Document, R extends IRepository<T>> 
   }
 
   public async update(id: Types.ObjectId, data: object): Promise<boolean> {
-    const updateResult = this._repository.updateOne(
-      id,
-      data as any
-    );
+    const updateResult = this._repository.updateOne(id, data as any);
     return (await updateResult).acknowledged;
   }
   public async delete(id: Types.ObjectId): Promise<boolean> {

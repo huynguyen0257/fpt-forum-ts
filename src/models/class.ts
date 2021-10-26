@@ -1,6 +1,5 @@
-import { injectable, unmanaged } from "inversify";
-import { Schema, model, Document, Model, Connection } from "mongoose";
-
+import { injectable, unmanaged } from 'inversify';
+import { Schema, model, Document, Model, Connection } from 'mongoose';
 /**
  * Interface of "Class" model use in project
  * Notice for typescript is aware of the object "Class"
@@ -29,7 +28,7 @@ export interface ClassDoc extends Document {
  * Ex: Model.build(data:IClass): ClassDoc
  */
 export interface ClassModel extends Model<ClassDoc> {
-  build(data:IClass): ClassDoc
+  build(data: IClass): ClassDoc;
 }
 
 /**
@@ -37,7 +36,6 @@ export interface ClassModel extends Model<ClassDoc> {
  * Add more funciton & middle to "Class" model
  * Provide "Class" Model for interact with mongoDb via mongoose
  */
-@injectable()
 export class Class {
   private _model: Model<ClassDoc>;
   constructor() {
@@ -45,26 +43,26 @@ export class Class {
       code: {
         type: String,
         required: true,
-        unique:true,
-        uppercase: true,
+        unique: true,
+        uppercase: true
       },
       maxStudent: {
         type: Number,
-        required: true,
+        required: true
       },
       students: [
         {
           type: Schema.Types.ObjectId,
-          ref: "Users",
-        },
-      ],
+          ref: 'User'
+        }
+      ]
     });
 
     schema.statics.build = (data: IClass): ClassDoc => {
       return new this._model(data);
-    }
+    };
 
-    this._model = model<ClassDoc>("Class", schema);
+    this._model = model<ClassDoc>('Class', schema);
   }
 
   public get model(): Model<ClassDoc> {

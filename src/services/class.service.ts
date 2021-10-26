@@ -1,18 +1,18 @@
-import { Service, Inject } from "typedi";
-import { ClassDoc } from "@/models/class";
-import { User, IClass } from "@/models";
-import { BaseService, IService } from "./base.service";
-import { inject, injectable } from "inversify";
-import { TYPES } from "@/utils/type";
-import { IClassRepository } from "@/repositories/class.repo";
+import { ClassDoc } from '@/models/class';
+import { User, IClass } from '@/models';
+import { BaseService, IService } from './base.service';
+import { inject, injectable } from 'inversify';
+import { TYPES } from '@/utils/type';
+import { IClassRepository } from '@/repositories/class.repo';
 
+export interface IClassService extends IService<ClassDoc> {}
 
-export interface IClassService extends IService<ClassDoc>{}
-
-@Service()
 @injectable()
-export default class ClassService extends BaseService<ClassDoc, IClassRepository> implements IClassService {
-  constructor(@inject(TYPES.ClassRepository) _repository: IClassRepository) {
+export class ClassService
+  extends BaseService<ClassDoc, IClassRepository>
+  implements IClassService
+{
+  constructor(@inject(TYPES.IClassRepository) _repository: IClassRepository) {
     super(_repository);
   }
 

@@ -1,47 +1,54 @@
-import express from "express";
-import cookieParser from "cookie-parser";
-import camelcaseKeys from "camelcase-keys";
-import logger from "./logger";
-import config from "../config";
-import { AppError } from "@/utils/appError";
-import routes from "@/api/routes";
-import { Container } from "inversify";
+import express, { Application } from 'express';
+import cookieParser from 'cookie-parser';
+import camelcaseKeys from 'camelcase-keys';
+import logger from './logger';
+import config from '../config';
+import { AppError } from '@/utils/appError';
+import MyRoute from '@/api/routes';
+import { Container } from 'inversify';
 
-export default async (app: express.Application, myContainer: Container) => {
-  async function setupViewEngine() {
-    // app.use(logger('dev'));
-    app.use(express.json());
-    app.use(express.urlencoded({ extended: false }));
-    app.use(cookieParser());
+export default class ExpressLoader {
+  private readonly _app: Application;
+  private readonly _myContainer: Container;
+  constructor(app: Application, myContainer: Container) {
+    this._app = app;
+    this._myContainer = myContainer;
+    this.setupViewEngine();
+    this.setupMiddleware();
+    this.setupRoutes();
+    this.setupHandleUndefinedRoutes();
   }
 
-  async function setupMiddleware() {
-    app.use((req, res, next) => {
+  private async setupViewEngine() {
+    this._app.use(express.json());
+    this._app.use(express.urlencoded({ extended: false }));
+    this._app.use(cookieParser());
+  }
+  private async setupMiddleware() {
+    this._app.use((req, res, next) => {
       req.body = camelcaseKeys(req.body, { deep: true });
       req.params = camelcaseKeys(req.params);
       req.query = camelcaseKeys(req.query);
       next();
     });
 
-    app.use((req, res, next) => {
+    this._app.use((req, res, next) => {
       logger.info(`${req.method} ${req.originalUrl}`);
       next();
     });
   }
-
-  async function setupRoutes() {
-    app.use(config.api.prefix, routes(myContainer));
+  private async setupRoutes() {
+    this._app.use(config.api.prefix, new MyRoute(this._myContainer).route);
   }
-
-  async function setupHandleUndefinedRoutes() {
-    app.use("*", (req, res, next) => {
+  private async setupHandleUndefinedRoutes() {
+    this._app.use('*', (req, res, next) => {
       //   const err = new AppError(404, "fail", "undefined route");
-      const err = new AppError(404, "Undefined route");
+      const err = new AppError(404, 'Undefined route');
       next(err);
     });
 
     // error handlers
-    app.use(
+    this._app.use(
       (
         err: any,
         req: express.Request,
@@ -51,13 +58,13 @@ export default async (app: express.Application, myContainer: Container) => {
         /**
          * Handle 401 thrown by express-jwt library
          */
-        if (err.name === "UnauthorizedError") {
+        if (err.name === 'UnauthorizedError') {
           return res.status(err.status).send({ message: err.message }).end();
         }
         return next(err);
       }
     );
-    app.use(
+    this._app.use(
       (
         err: any,
         req: express.Request,
@@ -69,21 +76,17 @@ export default async (app: express.Application, myContainer: Container) => {
           logger.error(err);
           logger.error(err.stack);
         }
-        res.status(err.status).json({
-          error: err.message || err,
-        }).end();
+        res
+          .status(err.status)
+          .json({
+            error: err.message || err
+          })
+          .end();
       }
     );
   }
 
-  async function init() {
-    await setupViewEngine();
-    setupMiddleware();
-    setupRoutes();
-    setupHandleUndefinedRoutes();
+  public get app(): Application {
+    return this._app;
   }
-
-  init();
-
-  return app;
-};
+}
