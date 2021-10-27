@@ -2,22 +2,18 @@ import { Router } from 'express';
 import { Container } from 'inversify';
 import { UserController } from '../controllers';
 import IRoute from './i.route';
-import MyMiddlewares from '../middlewares';
+import { ValidateRequest } from '../middlewares';
 import { body, param } from 'express-validator';
+import AuthMiddleware from '../middlewares/auth';
 
 export default class UserRoute implements IRoute<UserController> {
-  private readonly _route: Router;
-  private readonly _controller: UserController;
-  private readonly _middleWares: MyMiddlewares;
-  constructor(myContainer: Container) {
-    this._route = Router();
-    this._controller = new UserController(myContainer);
-    this._middleWares = new MyMiddlewares();
+  public readonly route: Router;
+  public readonly controller: UserController;
+  constructor() {
+    this.route = Router();
+    this.controller = new UserController();
+    this.setupGlobalMiddleware();
     this.init();
-  }
-
-  public get route(): Router {
-    return this._route;
   }
 
   /**
@@ -25,15 +21,14 @@ export default class UserRoute implements IRoute<UserController> {
    * Middleware as well
    */
   public init(): void {
-    //   this._router.use(middlewares.isAuth);
-    this._route.get('/', this._controller.getAll);
-    this._route.get(
+    this.route.get('/', this.controller.getAll);
+    this.route.get(
       '/:id',
       param('id').isString(),
-      this._middleWares.ValidateRequest.validateRequest,
-      this._controller.getById
+      ValidateRequest.validateRequest,
+      this.controller.getById
     );
-    this._route.post(
+    this.route.post(
       '/',
       body('username').isString().withMessage('code is required'),
       body('password').isString().withMessage('password is required'),
@@ -42,10 +37,10 @@ export default class UserRoute implements IRoute<UserController> {
         .matches(/(03|05|07|08|09|01[2|6|8|9])+([0-9]{8})\b/)
         .withMessage('phoneNumber is required'),
       body('emailAddress').isEmail().withMessage('invalid email address'),
-      this._middleWares.ValidateRequest.validateRequest,
-      this._controller.create
+      ValidateRequest.validateRequest,
+      this.controller.create
     );
-    this._route.put(
+    this.route.put(
       '/',
       body('id').isString(),
       body('code')
@@ -54,18 +49,18 @@ export default class UserRoute implements IRoute<UserController> {
         .isUppercase()
         .withMessage('Please upper case'),
       body('maxStudent').isNumeric(),
-      this._middleWares.ValidateRequest.validateRequest,
-      this._controller.update
+      ValidateRequest.validateRequest,
+      this.controller.update
     );
-    this._route.delete(
+    this.route.delete(
       '/:id',
       param('id').isString(),
-      this._middleWares.ValidateRequest.validateRequest,
-      this._controller.remove
+      ValidateRequest.validateRequest,
+      this.controller.remove
     );
   }
 
   setupGlobalMiddleware(): void {
-    throw new Error('Method not implemented.');
+    this.route.use(AuthMiddleware.isAuth);
   }
 }

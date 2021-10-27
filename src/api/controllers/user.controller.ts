@@ -1,18 +1,16 @@
 import { bind } from 'decko';
 import { NextFunction, Request, Response } from 'express';
-import { AppError } from '@/utils/appError';
+import { ErrorMsg } from '@/utils/appError';
 import { IUserService } from '@/services';
-import { Container, injectable } from 'inversify';
 import { TYPES } from '@/utils/type';
-import { ResMessage } from '@/utils/resMessage';
+import InversifyLoader from '@/loaders/inversify';
 
-@injectable()
 export class UserController {
   private _userService: IUserService;
   private _classService: IUserService;
-  constructor(myContainer: Container) {
-    this._userService = myContainer.get(TYPES.IUserService);
-    this._classService = myContainer.get(TYPES.IClassService);
+  constructor() {
+    this._userService = InversifyLoader.container.get(TYPES.IUserService);
+    this._classService = InversifyLoader.container.get(TYPES.IClassService);
   }
 
   @bind
@@ -63,17 +61,17 @@ export class UserController {
       } = req.body;
       const isEmailExist = await this._userService.findOne({ emailAddress });
       if (isEmailExist)
-        return next(new AppError(400, 'Email is already taken'));
+        return next(new ErrorMsg(400, 'Email is already taken'));
 
-      // const user = await this._userService.create({
-      //   username,
-      //   password,
-      //   emailAddress,
-      //   phoneNumber,
-      //   fullName,
-      //   classes: [classId]
-      // });
-      return res.status(200).json(await this._classService.find());
+      await this._userService.create({
+        username,
+        password,
+        emailAddress,
+        phoneNumber,
+        fullName,
+        classes: [classId]
+      });
+      return res.status(201).json({ message: 'Create successful' });
     } catch (error) {
       return next(error);
     }
@@ -93,9 +91,9 @@ export class UserController {
           code,
           maxStudent
         });
-        return next(new ResMessage(200, 'Update successful'));
+        return res.status(200).json({ message: 'Update successful' });
       }
-      return next(new ResMessage(404, 'Not Found'));
+      return next(new ErrorMsg(404, 'Not Found'));
     } catch (error) {
       return next(error);
     }
@@ -112,9 +110,11 @@ export class UserController {
       if (model) {
         const username = model.username;
         await this._userService.delete(model._id);
-        return next(new ResMessage(200, `Delete username: ${username}`));
+        return res
+          .status(200)
+          .json({ message: `Delete username: ${username}` });
       }
-      return next(new ResMessage(404, 'Not Found'));
+      return next(new ErrorMsg(404, 'Not Found'));
     } catch (error) {
       return next(error);
     }

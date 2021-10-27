@@ -1,7 +1,5 @@
-import { ClassDoc } from '@/models';
-import { TYPES } from '@/utils/type';
-import { inject, injectable } from 'inversify';
-import mongoose from 'mongoose';
+import { ClassDoc, Class } from '@/models';
+import { injectable } from 'inversify';
 import { BaseRepository, IRepository } from './base.repo';
 // import ClassModel = require('@/models/schemas/class.schema');
 
@@ -13,7 +11,6 @@ export class ClassRepository
   implements IClassRepository
 {
   constructor() {
-    var ClassModel = mongoose.model<ClassDoc>('Class');
-    super(ClassModel);
+    super(Class.model);
   }
 }

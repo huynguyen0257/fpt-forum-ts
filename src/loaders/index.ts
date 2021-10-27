@@ -5,13 +5,13 @@ import MongooseLoader from './mongoose';
 import InversifyLoader from './inversify';
 
 export default async (expressApp: express.Application) => {
-  const mongoose = await new MongooseLoader().connection;
+  await MongooseLoader.init();
   // const mongoConnection = mongoose.db; // use for agenda
   logger.info('✌️ DB loaded and connected!');
 
-  const myContainer = new InversifyLoader().container;
+  // InversifyLoader.init();
   logger.info('✌️ Inversify loaded!');
 
-  const expresstLoader = new ExpressLoader(expressApp, myContainer);
+  const expresstLoader = new ExpressLoader(expressApp);
   logger.info('✌️ Express loaded');
 };

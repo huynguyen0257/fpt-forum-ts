@@ -1,7 +1,5 @@
 import { Schema, model, Document, Model } from 'mongoose';
-import IObject from '@/utils/object';
-import R from 'ramda';
-import { injectable } from 'inversify';
+import bcrypt from 'bcryptjs';
 
 export interface IUser extends Document {
   username: string;
@@ -26,9 +24,10 @@ export interface UserModel extends Model<IUser> {
 }
 
 export class User {
-  private _model: Model<IUser>;
+  public static model: Model<IUser>;
 
-  constructor() {
+  // static block, run when runtime load all files - Only file use in 'import' keyword, belong to /src/app.ts
+  static {
     const schema = new Schema({
       username: { type: String, required: true },
       password: { type: String, required: true },
@@ -56,13 +55,14 @@ export class User {
     });
 
     schema.statics.build = (data: IUser): UserDoc => {
-      return new this._model(data);
+      return new this.model(data);
     };
 
-    this._model = model<IUser>('User', schema);
-  }
+    schema.pre('save', function (next) {
+      this.password = bcrypt.hashSync(this.password, 10);
+      next();
+    });
 
-  public get model(): Model<IUser> {
-    return this._model;
+    this.model = model<IUser>('User', schema);
   }
 }

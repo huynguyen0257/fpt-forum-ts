@@ -1,4 +1,4 @@
-import { User, UserDoc } from '@/models';
+import { Class, User, UserDoc } from '@/models';
 import { TYPES } from '@/utils/type';
 import { inject, injectable } from 'inversify';
 import { Query } from 'mongoose';
@@ -13,19 +13,6 @@ export class UserRepository
   implements IUserRepository
 {
   constructor() {
-    var UserModel = mongoose.model<UserDoc>('User');
-    super(UserModel);
+    super(User.model);
   }
-
-  // public find(
-  //   cond?: object,
-  //   fields?: object,
-  //   options?: object
-  // ): Query<UserDoc[], any> {
-  //   const rs = this._model
-  //     .find(cond, fields, options)
-  //     .populate({ path: 'classes', model: Class });
-  //   console.log(`typeof(rs): ${typeof rs}`);
-  //   return rs;
-  // }
 }

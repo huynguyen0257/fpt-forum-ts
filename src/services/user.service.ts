@@ -3,10 +3,12 @@ import { BaseService, IService } from './base.service';
 import { inject, injectable } from 'inversify';
 import { TYPES } from '@/utils/type';
 import { IUserRepository } from '@/repositories';
-// import ClassModel = require('@/models/schemas/class.schema');
-// import mongoose from 'mongoose';
+import mongoose from 'mongoose';
+import bcrypt from 'bcryptjs';
 
-export interface IUserService extends IService<UserDoc> {}
+export interface IUserService extends IService<UserDoc> {
+  checkPassword(password: string, user: UserDoc): Promise<boolean>;
+}
 
 @injectable()
 export class UserService
@@ -18,11 +20,17 @@ export class UserService
   }
 
   public async findById(id: string): Promise<UserDoc> {
-    return await this._repository.findById(id);
-    // .populate({ path: 'classes', model: mongoose.model<ClassDoc>('Class') });
+    return await this._repository
+      .findById(id)
+      .populate({ path: 'classes', model: mongoose.model<ClassDoc>('Class') });
   }
   public async findOne(cond?: object): Promise<UserDoc> {
-    return await this._repository.findOne(cond);
-    // .populate({ path: 'classes', model: mongoose.model<ClassDoc>('Class') });
+    return await this._repository
+      .findOne(cond)
+      .populate({ path: 'classes', model: mongoose.model<ClassDoc>('Class') });
+  }
+
+  public async checkPassword(password: string, user: UserDoc) {
+    return await bcrypt.compare(password, user.password);
   }
 }

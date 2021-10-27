@@ -1,7 +1,5 @@
 import { Container } from 'inversify';
 import { TYPES } from '@/utils/type';
-import { User } from '@/models';
-import { ClassController } from '@/api/controllers';
 import {
   ClassRepository,
   IClassRepository,
@@ -12,26 +10,22 @@ import { ClassService, IClassService } from '@/services/class.service';
 import { IUserService, UserService } from '@/services';
 
 export default class InversifyLoader {
-  private _container: Container;
+  public static container: Container;
 
-  constructor() {
-    this._container = new Container();
+  // Run when call with InversifyLoader.init()
+  static {
+    this.container = new Container();
 
     // Class Model
-    this._container
+    this.container
       .bind<IClassRepository>(TYPES.IClassRepository)
       .to(ClassRepository);
-    this._container.bind<IClassService>(TYPES.IClassService).to(ClassService);
+    this.container.bind<IClassService>(TYPES.IClassService).to(ClassService);
 
     // User Model
-    this._container.bind(TYPES.UserModel).to(User);
-    this._container
+    this.container
       .bind<IUserRepository>(TYPES.IUserRepository)
       .to(UserRepository);
-    this._container.bind<IUserService>(TYPES.IUserService).to(UserService);
-  }
-
-  public get container(): Container {
-    return this._container;
+    this.container.bind<IUserService>(TYPES.IUserService).to(UserService);
   }
 }

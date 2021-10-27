@@ -3,16 +3,14 @@ import cookieParser from 'cookie-parser';
 import camelcaseKeys from 'camelcase-keys';
 import logger from './logger';
 import config from '../config';
-import { AppError } from '@/utils/appError';
+import { ErrorMsg } from '@/utils/appError';
 import MyRoute from '@/api/routes';
 import { Container } from 'inversify';
 
 export default class ExpressLoader {
   private readonly _app: Application;
-  private readonly _myContainer: Container;
-  constructor(app: Application, myContainer: Container) {
+  constructor(app: Application) {
     this._app = app;
-    this._myContainer = myContainer;
     this.setupViewEngine();
     this.setupMiddleware();
     this.setupRoutes();
@@ -38,12 +36,12 @@ export default class ExpressLoader {
     });
   }
   private async setupRoutes() {
-    this._app.use(config.api.prefix, new MyRoute(this._myContainer).route);
+    this._app.use(config.api.prefix, new MyRoute().route);
   }
   private async setupHandleUndefinedRoutes() {
     this._app.use('*', (req, res, next) => {
       //   const err = new AppError(404, "fail", "undefined route");
-      const err = new AppError(404, 'Undefined route');
+      const err = new ErrorMsg(404, 'Undefined route');
       next(err);
     });
 

@@ -1,4 +1,4 @@
-export class ResMessage {
+export class SuccessMsg {
   public readonly status: number;
   public readonly message?: string;
   public readonly data?: object;

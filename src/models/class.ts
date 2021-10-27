@@ -1,4 +1,3 @@
-import { injectable, unmanaged } from 'inversify';
 import { Schema, model, Document, Model, Connection } from 'mongoose';
 /**
  * Interface of "Class" model use in project
@@ -37,8 +36,10 @@ export interface ClassModel extends Model<ClassDoc> {
  * Provide "Class" Model for interact with mongoDb via mongoose
  */
 export class Class {
-  private _model: Model<ClassDoc>;
-  constructor() {
+  public static model: Model<ClassDoc>;
+
+  // static block, run when runtime load all files - Only file use in 'import' keyword, belong to /src/app.ts
+  static {
     const schema = new Schema({
       code: {
         type: String,
@@ -59,13 +60,9 @@ export class Class {
     });
 
     schema.statics.build = (data: IClass): ClassDoc => {
-      return new this._model(data);
+      return new this.model(data);
     };
 
-    this._model = model<ClassDoc>('Class', schema);
-  }
-
-  public get model(): Model<ClassDoc> {
-    return this._model;
+    this.model = model<ClassDoc>('Class', schema);
   }
 }

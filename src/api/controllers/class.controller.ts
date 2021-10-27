@@ -1,18 +1,18 @@
 import container from '@/loaders/inversify';
 import { bind } from 'decko';
 import { NextFunction, Request, Response } from 'express';
-import { AppError } from '@/utils/appError';
+import { ErrorMsg } from '@/utils/appError';
 import { contains } from 'ramda';
-import { ResMessage } from '@/utils/resMessage';
+import { SuccessMsg } from '@/utils/resMessage';
 import { Container, inject, injectable } from 'inversify';
 import { TYPES } from '@/utils/type';
 import { ClassService } from '@/services';
+import InversifyLoader from '@/loaders/inversify';
 
-@injectable()
 export class ClassController {
   private _classService: ClassService;
-  constructor(myContainer: Container) {
-    this._classService = myContainer.get(TYPES.IClassService);
+  constructor() {
+    this._classService = InversifyLoader.container.get(TYPES.IClassService);
   }
 
   @bind
@@ -63,7 +63,7 @@ export class ClassController {
     try {
       const { code, maxStudent } = req.body;
       const result = await this._classService.create({ code, maxStudent });
-      return next(new ResMessage(201, 'Create successful'));
+      return res.status(201).json({ message: 'Create successful' });
     } catch (error) {
       return next(error);
     }
@@ -82,9 +82,9 @@ export class ClassController {
           code,
           maxStudent
         });
-        return next(new ResMessage(200, 'Update successful'));
+        return res.status(200).json({ message: 'Update successful' });
       }
-      return next(new ResMessage(404, 'Not Found'));
+      return next(new ErrorMsg(404, 'Not Found'));
     } catch (error) {
       return next(error);
     }
@@ -101,9 +101,9 @@ export class ClassController {
       if (model) {
         const code = model.code;
         await this._classService.delete(model._id);
-        return next(new ResMessage(200, `Delete class code ${code}`));
+        return res.status(200).json({ message: `Delete class code ${code}` });
       }
-      return next(new ResMessage(404, 'Not Found'));
+      return next(new ErrorMsg(404, 'Not Found'));
     } catch (error) {
       return next(error);
     }

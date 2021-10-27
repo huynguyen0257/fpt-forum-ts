@@ -4,20 +4,15 @@ import { body, param } from 'express-validator';
 import * as middlewares from '../middlewares';
 import IRoute from './i.route';
 import { Container } from 'inversify';
+import { ValidateRequest } from '../middlewares';
 
 export default class ClassRoute implements IRoute<ClassController> {
-  private readonly _route: Router;
-  private readonly _controller: ClassController;
-  private readonly _middleWares: middlewares.ValidateRequest;
-  constructor(myContainer: Container) {
-    this._route = Router();
-    this._controller = new ClassController(myContainer);
-    this._middleWares = new middlewares.ValidateRequest();
+  public readonly route: Router;
+  public readonly controller: ClassController;
+  constructor() {
+    this.route = Router();
+    this.controller = new ClassController();
     this.init();
-  }
-
-  public get route(): Router {
-    return this._route;
   }
 
   /**
@@ -26,14 +21,14 @@ export default class ClassRoute implements IRoute<ClassController> {
    */
   public init(): void {
     this.setupGlobalMiddleware();
-    this._route.get('/', this._controller.getAll);
-    this._route.get(
+    this.route.get('/', this.controller.getAll);
+    this.route.get(
       '/:id',
       param('id').isString(),
-      this._middleWares.validateRequest,
-      this._controller.getById
+      ValidateRequest.validateRequest,
+      this.controller.getById
     );
-    this._route.post(
+    this.route.post(
       '/',
       body('code')
         .isString()
@@ -41,10 +36,10 @@ export default class ClassRoute implements IRoute<ClassController> {
         .isUppercase()
         .withMessage('Please upper case'),
       body('maxStudent').isNumeric(),
-      this._middleWares.validateRequest,
-      this._controller.create
+      ValidateRequest.validateRequest,
+      this.controller.create
     );
-    this._route.put(
+    this.route.put(
       '/',
       body('id').isString(),
       body('code')
@@ -53,14 +48,14 @@ export default class ClassRoute implements IRoute<ClassController> {
         .isUppercase()
         .withMessage('Please upper case'),
       body('maxStudent').isNumeric(),
-      this._middleWares.validateRequest,
-      this._controller.update
+      ValidateRequest.validateRequest,
+      this.controller.update
     );
-    this._route.delete(
+    this.route.delete(
       '/:id',
       param('id').isString(),
-      this._middleWares.validateRequest,
-      this._controller.remove
+      ValidateRequest.validateRequest,
+      this.controller.remove
     );
   }
 
@@ -68,6 +63,6 @@ export default class ClassRoute implements IRoute<ClassController> {
    * Setup Middleware for all Class Controller
    */
   public setupGlobalMiddleware(): void {
-    //   this._router.use(middlewares.isAuth);
+    //   this.router.use(middlewares.isAuth);
   }
 }

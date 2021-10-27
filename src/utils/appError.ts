@@ -1,4 +1,4 @@
-export class AppError {
+export class ErrorMsg {
   public readonly status: number;
   public readonly message: string;
   public readonly error: any;

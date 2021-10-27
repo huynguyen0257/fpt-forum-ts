@@ -4,10 +4,11 @@
   "description": "",
   "main": "src/index.ts",
   "scripts": {
-    "prettier-format": "prettier --config .prettierrc 'src/**/*.ts' --write",
     "predev": "tslint -c tslint.json -p tsconfig.json --fix",
-    "dev": "nodemon",
-    "build": "rimraf ./build && tsc",
+    "_comment_dev": "ts-node avoid configuration conflicts between tsc & ts-node | starts up much quicker | run your server even with compiler failures, which is nice in development. *//* Read more: https://www.npmjs.com/package/ts-node#cli-and-programmatic-options",
+    "dev": "nodemon --exec ts-node -T src/index.ts",
+    "_comment_build": "Make sure 'npm run build before commit or merge",
+    "build": "rimraf ./build && tsc", 
     "test": "jest"
   },
   "_moduleAliases": {
@@ -25,6 +26,7 @@
     "express": "^4.17.1",
     "express-validator": "^6.13.0",
     "inversify": "^6.0.1",
+    "jsonwebtoken": "^8.5.1",
     "module-alias": "^2.2.2",
     "mongoose": "^6.0.11",
     "ramda": "^0.27.1",
@@ -36,6 +38,7 @@
     "@types/cookie-parser": "^1.4.2",
     "@types/dotenv": "^8.2.0",
     "@types/express": "^4.17.13",
+    "@types/jsonwebtoken": "^8.5.5",
     "@types/mongoose": "^5.11.97",
     "@types/node": "^16.11.1",
     "@types/ramda": "^0.27.45",

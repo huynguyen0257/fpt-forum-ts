@@ -1,7 +1,8 @@
 import { Router } from 'express';
 
 export default interface IRoute<T> {
-  route: Router;
+  readonly route: Router;
+  readonly controller: T;
   init(): void;
   setupGlobalMiddleware(): void;
 }
