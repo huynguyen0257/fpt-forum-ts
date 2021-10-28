@@ -8,7 +8,7 @@
     "_comment_dev": "ts-node avoid configuration conflicts between tsc & ts-node | starts up much quicker | run your server even with compiler failures, which is nice in development. *//* Read more: https://www.npmjs.com/package/ts-node#cli-and-programmatic-options",
     "dev": "nodemon --exec ts-node -T src/index.ts",
     "_comment_build": "Make sure 'npm run build before commit or merge",
-    "build": "rimraf ./build && tsc", 
+    "build": "rimraf ./build && tsc",
     "test": "jest"
   },
   "_moduleAliases": {
@@ -42,6 +42,7 @@
     "@types/mongoose": "^5.11.97",
     "@types/node": "^16.11.1",
     "@types/ramda": "^0.27.45",
+    "class-transformer": "^0.4.0",
     "prettier": "^2.4.1",
     "tslint": "^6.1.3",
     "typescript": "^4.4.4",

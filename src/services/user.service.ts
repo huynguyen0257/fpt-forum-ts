@@ -1,4 +1,4 @@
-import { User, IUser, UserDoc, ClassDoc } from '@/models';
+import { UserDoc, ClassDoc } from '@/models';
 import { BaseService, IService } from './base.service';
 import { inject, injectable } from 'inversify';
 import { TYPES } from '@/utils/type';

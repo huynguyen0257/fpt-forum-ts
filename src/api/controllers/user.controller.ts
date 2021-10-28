@@ -4,6 +4,8 @@ import { ErrorMsg } from '@/utils/appError';
 import { IUserService } from '@/services';
 import { TYPES } from '@/utils/type';
 import InversifyLoader from '@/loaders/inversify';
+import { UserVM } from '../viewmodels/user.vm';
+import { plainToClass } from 'class-transformer';
 
 export class UserController {
   private _userService: IUserService;
@@ -35,8 +37,13 @@ export class UserController {
     next: NextFunction
   ): Promise<Response | void> {
     try {
-      console.log(`Date: ${Date.toString()}`);
-      const users = this._userService.find();
+      const users = (await this._userService.find()).map((user) => {
+        const vm = plainToClass(UserVM, user.toObject(), {
+          excludeExtraneousValues: true
+        });
+        vm.created = `${user.created.toLocaleTimeString()} ${user.created.toLocaleDateString()}`;
+        return vm;
+      });
       return res.status(200).json(await users);
     } catch (err) {
       return next(err);

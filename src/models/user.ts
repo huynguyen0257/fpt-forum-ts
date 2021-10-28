@@ -1,13 +1,14 @@
 import { Schema, model, Document, Model } from 'mongoose';
 import bcrypt from 'bcryptjs';
 
-export interface IUser extends Document {
+interface IUser extends Document {
   username: string;
   password: string;
   fullName: string;
   phoneNumber: string;
   emailAddress: string;
   classes: object[] | null;
+  created: Date;
 }
 
 export interface UserDoc extends Document {
@@ -17,6 +18,7 @@ export interface UserDoc extends Document {
   phoneNumber: string;
   emailAddress: string;
   classes: object[] | null;
+  created: Date;
 }
 
 export interface UserModel extends Model<IUser> {
