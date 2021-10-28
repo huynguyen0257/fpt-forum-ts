@@ -1,8 +1,5 @@
-import { Class, User, UserDoc } from '@/models';
-import { TYPES } from '@/utils/inversify.type';
-import { inject, injectable } from 'inversify';
-import { Query } from 'mongoose';
-import mongoose from 'mongoose';
+import { User, UserDoc } from '@/models';
+import { injectable } from 'inversify';
 import { BaseRepository, IRepository } from './base.repo';
 
 export interface IUserRepository extends IRepository<UserDoc> {}
