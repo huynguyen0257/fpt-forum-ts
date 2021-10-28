@@ -82,6 +82,7 @@ export default class AuthController {
     next: NextFunction
   ): Promise<Response | void> {
     try {
+      res.clearCookie('token');
       return res.status(200).json({ message: 'Logout' });
     } catch (error) {
       return next(error);

@@ -7,10 +7,8 @@ import InversifyLoader from '@/loaders/inversify';
 
 export class UserController {
   private _userService: IUserService;
-  private _classService: IUserService;
   constructor() {
     this._userService = InversifyLoader.container.get(TYPES.IUserService);
-    this._classService = InversifyLoader.container.get(TYPES.IClassService);
   }
 
   @bind
@@ -37,6 +35,7 @@ export class UserController {
     next: NextFunction
   ): Promise<Response | void> {
     try {
+      console.log(`Date: ${Date.toString()}`);
       const users = this._userService.find();
       return res.status(200).json(await users);
     } catch (err) {

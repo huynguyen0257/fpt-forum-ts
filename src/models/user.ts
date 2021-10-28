@@ -51,7 +51,11 @@ export class User {
           'Please fill a valid email address'
         ]
       },
-      classes: [{ type: Schema.Types.ObjectId, ref: 'Class' }]
+      classes: [{ type: Schema.Types.ObjectId, ref: 'Class' }],
+      created: {
+        type: Date,
+        default: Date.now
+      }
     });
 
     schema.statics.build = (data: IUser): UserDoc => {
