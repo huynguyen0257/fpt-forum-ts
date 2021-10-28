@@ -1,5 +1,6 @@
 import { Schema, model, Document, Model } from 'mongoose';
 import bcrypt from 'bcryptjs';
+import logger from '@/loaders/logger';
 
 interface IUser extends Document {
   username: string;
@@ -8,6 +9,7 @@ interface IUser extends Document {
   phoneNumber: string;
   emailAddress: string;
   classes: object[] | null;
+  roles: object[] | null;
   created: Date;
 }
 
@@ -18,6 +20,7 @@ export interface UserDoc extends Document {
   phoneNumber: string;
   emailAddress: string;
   classes: object[] | null;
+  roles: object[] | null;
   created: Date;
 }
 
@@ -54,10 +57,8 @@ export class User {
         ]
       },
       classes: [{ type: Schema.Types.ObjectId, ref: 'Class' }],
-      created: {
-        type: Date,
-        default: Date.now
-      }
+      roles: [{ type: Schema.Types.ObjectId, ref: 'Role' }],
+      created: { type: Date, default: Date.now }
     });
 
     schema.statics.build = (data: IUser): UserDoc => {
@@ -65,7 +66,8 @@ export class User {
     };
 
     schema.pre('save', function (next) {
-      this.password = bcrypt.hashSync(this.password, 10);
+      logger.info('PreSave mongoose middlewares');
+      if (this.isNew) this.password = bcrypt.hashSync(this.password, 10);
       next();
     });
 

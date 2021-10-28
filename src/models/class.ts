@@ -7,6 +7,7 @@ export interface IClass {
   code: string;
   maxStudent: number;
   classes: object[] | null;
+  created: Date;
 }
 
 /**
@@ -17,6 +18,7 @@ export interface ClassDoc extends Document {
   code: string;
   maxStudent: number;
   classes: object[] | null;
+  created: Date;
 }
 
 /**
@@ -32,7 +34,7 @@ export interface ClassModel extends Model<ClassDoc> {
 
 /**
  * Main class config "Class" model to mongoDB
- * Add more funciton & middle to "Class" model
+ * Add more function & middle to "Class" model
  * Provide "Class" Model for interact with mongoDb via mongoose
  */
 export class Class {
@@ -47,16 +49,9 @@ export class Class {
         unique: true,
         uppercase: true
       },
-      maxStudent: {
-        type: Number,
-        required: true
-      },
-      students: [
-        {
-          type: Schema.Types.ObjectId,
-          ref: 'User'
-        }
-      ]
+      maxStudent: { type: Number, required: true },
+      students: [{ type: Schema.Types.ObjectId, ref: 'User' }],
+      created: { type: Date, default: Date.now }
     });
 
     schema.statics.build = (data: IClass): ClassDoc => {

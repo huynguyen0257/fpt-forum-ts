@@ -1,21 +1,21 @@
 import { Router } from 'express';
-import { ClassController } from '../controllers';
+import { RoleController } from '../controllers';
 import { body, param } from 'express-validator';
 import IRoute from './i.route';
 import { ValidateRequest } from '../middlewares';
 
-export default class ClassRoute implements IRoute<ClassController> {
+export default class RoleRoute implements IRoute<RoleController> {
   public readonly route: Router;
-  public readonly controller: ClassController;
+  public readonly controller: RoleController;
   constructor() {
     this.route = Router();
-    this.controller = new ClassController();
+    this.controller = new RoleController();
     this.setupGlobalMiddleware();
     this.init();
   }
 
   /**
-   * init all route to ClassController
+   * init all route to RoleController
    * Middleware as well
    */
   public init(): void {
@@ -29,37 +29,18 @@ export default class ClassRoute implements IRoute<ClassController> {
     );
     this.route.post(
       '/',
-      body('code')
+      body('roleName')
         .isString()
-        .withMessage('code is a string')
+        .withMessage('roleName is a string')
         .isUppercase()
         .withMessage('Please upper case'),
-      body('maxStudent').isNumeric(),
       ValidateRequest.validateRequest,
       this.controller.create
-    );
-    this.route.put(
-      '/',
-      body('id').isString(),
-      body('code')
-        .isString()
-        .withMessage('code is a string')
-        .isUppercase()
-        .withMessage('Please upper case'),
-      body('maxStudent').isNumeric(),
-      ValidateRequest.validateRequest,
-      this.controller.update
-    );
-    this.route.delete(
-      '/:id',
-      param('id').isString(),
-      ValidateRequest.validateRequest,
-      this.controller.remove
     );
   }
 
   /**
-   * Setup Middleware for all Class Controller
+   * Setup Middleware for all Role Controller
    */
   public setupGlobalMiddleware(): void {
     //   this.router.use(middlewares.isAuth);

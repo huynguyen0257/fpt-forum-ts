@@ -2,15 +2,15 @@ import { bind } from 'decko';
 import { NextFunction, Request, Response } from 'express';
 import { ErrorMsg } from '@/utils/appError';
 import { IUserService } from '@/services';
-import { TYPES } from '@/utils/type';
+import { INVERSIFY } from '@/utils/inversify.type';
 import InversifyLoader from '@/loaders/inversify';
-import { UserVM } from '../viewmodels/user.vm';
+import { UserCM, UserUM, UserVM } from '../viewmodels/user.vm';
 import { plainToClass } from 'class-transformer';
 
 export class UserController {
   private _userService: IUserService;
   constructor() {
-    this._userService = InversifyLoader.container.get(TYPES.IUserService);
+    this._userService = InversifyLoader.container.get(INVERSIFY.IUserService);
   }
 
   @bind
@@ -42,6 +42,7 @@ export class UserController {
           excludeExtraneousValues: true
         });
         vm.created = `${user.created.toLocaleTimeString()} ${user.created.toLocaleDateString()}`;
+        vm.id = user._id;
         return vm;
       });
       return res.status(200).json(await users);
@@ -57,26 +58,16 @@ export class UserController {
     next: NextFunction
   ): Promise<Response | void> {
     try {
-      const {
-        username,
-        password,
-        emailAddress,
-        phoneNumber,
-        fullName,
-        classId
-      } = req.body;
-      const isEmailExist = await this._userService.findOne({ emailAddress });
+      const cm = plainToClass(UserCM, req.body, {
+        excludeExtraneousValues: true
+      });
+      const isEmailExist = await this._userService.findOne({
+        emailAddress: cm.emailAddress
+      });
       if (isEmailExist)
         return next(new ErrorMsg(400, 'Email is already taken'));
 
-      await this._userService.create({
-        username,
-        password,
-        emailAddress,
-        phoneNumber,
-        fullName,
-        classes: [classId]
-      });
+      await this._userService.create({ ...cm, classes: [cm.classId] });
       return res.status(201).json({ message: 'Create successful' });
     } catch (error) {
       return next(error);
@@ -90,14 +81,33 @@ export class UserController {
     next: NextFunction
   ): Promise<Response | void> {
     try {
-      const model = await this._userService.findById(req.body.id);
-      const { code, maxStudent } = req.body;
+      const um = plainToClass(UserUM, req.body, {
+        excludeExtraneousValues: true
+      });
+      const model = await this._userService.findById(um.id);
       if (model) {
-        const result = await this._userService.update(model._id, {
-          code,
-          maxStudent
-        });
+        await this._userService.update(model._id, um);
         return res.status(200).json({ message: 'Update successful' });
+      }
+      return next(new ErrorMsg(404, 'Not Found'));
+    } catch (error) {
+      return next(error);
+    }
+  }
+
+  @bind
+  public async addRole(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<Response | void> {
+    try {
+      const model = await this._userService.findById(req.body.id);
+      if (model) {
+        if (await this._userService.addRole(model, req.body.roleIds)) {
+          return res.status(200).json({ message: 'Update role success' });
+        }
+        return res.status(400).json({ message: 'Update role fail' });
       }
       return next(new ErrorMsg(404, 'Not Found'));
     } catch (error) {

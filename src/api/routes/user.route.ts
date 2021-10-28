@@ -1,5 +1,4 @@
 import { Router } from 'express';
-import { Container } from 'inversify';
 import { UserController } from '../controllers';
 import IRoute from './i.route';
 import { ValidateRequest } from '../middlewares';
@@ -30,7 +29,7 @@ export default class UserRoute implements IRoute<UserController> {
     );
     this.route.post(
       '/',
-      body('username').isString().withMessage('code is required'),
+      body('username').isString().withMessage('username is required'),
       body('password').isString().withMessage('password is required'),
       body('fullName').isString().withMessage('fullName is required'),
       body('phoneNumber')
@@ -42,15 +41,21 @@ export default class UserRoute implements IRoute<UserController> {
     );
     this.route.put(
       '/',
-      body('id').isString(),
-      body('code')
-        .isString()
-        .withMessage('code is a string')
-        .isUppercase()
-        .withMessage('Please upper case'),
-      body('maxStudent').isNumeric(),
+      body('id').isString().withMessage('id is required'),
+      body('fullName').isString().withMessage('fullName is required'),
+      body('phoneNumber')
+        .matches(/(03|05|07|08|09|01[2|6|8|9])+([0-9]{8})\b/)
+        .withMessage('phoneNumber is required'),
+      body('emailAddress').isEmail().withMessage('invalid email address'),
       ValidateRequest.validateRequest,
       this.controller.update
+    );
+    this.route.put(
+      '/role',
+      body('id').isString().withMessage('id is required'),
+      body('roleIds').notEmpty().withMessage('roleIds is required'),
+      ValidateRequest.validateRequest,
+      this.controller.addRole
     );
     this.route.delete(
       '/:id',

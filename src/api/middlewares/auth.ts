@@ -2,13 +2,13 @@ import config from '@/config';
 import InversifyLoader from '@/loaders/inversify';
 import { IUserService } from '@/services';
 import { ErrorMsg } from '@/utils/appError';
-import { TYPES } from '@/utils/type';
+import { INVERSIFY } from '@/utils/inversify.type';
 import { Request, Response, NextFunction } from 'express';
 import jwt, { JwtPayload } from 'jsonwebtoken';
 
 export default class AuthMiddleware {
   static userService: IUserService = InversifyLoader.container.get(
-    TYPES.IUserService
+    INVERSIFY.IUserService
   );
 
   public static async isAuth(req: Request, res: Response, next: NextFunction) {

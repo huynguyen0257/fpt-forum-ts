@@ -1,18 +1,14 @@
-import container from '@/loaders/inversify';
 import { bind } from 'decko';
 import { NextFunction, Request, Response } from 'express';
 import { ErrorMsg } from '@/utils/appError';
-import { contains } from 'ramda';
-import { SuccessMsg } from '@/utils/resMessage';
-import { Container, inject, injectable } from 'inversify';
-import { TYPES } from '@/utils/type';
+import { INVERSIFY } from '@/utils/inversify.type';
 import { ClassService } from '@/services';
 import InversifyLoader from '@/loaders/inversify';
 
 export class ClassController {
   private _classService: ClassService;
   constructor() {
-    this._classService = InversifyLoader.container.get(TYPES.IClassService);
+    this._classService = InversifyLoader.container.get(INVERSIFY.IClassService);
   }
 
   @bind

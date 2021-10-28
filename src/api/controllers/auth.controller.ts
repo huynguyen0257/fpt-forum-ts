@@ -2,9 +2,8 @@ import { NextFunction, Request, Response } from 'express';
 import { bind } from 'decko';
 import { IUserService } from '@/services';
 import InversifyLoader from '@/loaders/inversify';
-import { TYPES } from '@/utils/type';
+import { INVERSIFY } from '@/utils/inversify.type';
 import { ErrorMsg } from '@/utils/appError';
-import { SuccessMsg } from '@/utils/resMessage';
 import jwt from 'jsonwebtoken';
 import config from '@/config';
 
@@ -12,7 +11,7 @@ export default class AuthController {
   private _userService: IUserService;
 
   constructor() {
-    this._userService = InversifyLoader.container.get(TYPES.IUserService);
+    this._userService = InversifyLoader.container.get(INVERSIFY.IUserService);
   }
 
   @bind()

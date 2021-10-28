@@ -3,6 +3,7 @@ import ClassRoute from './class.route';
 import { Router } from 'express';
 import { Container } from 'inversify';
 import AuthRoute from './auth.route';
+import RoleRoute from './role.route';
 
 export default class MyRoute {
   private readonly _route: Router;
@@ -11,6 +12,7 @@ export default class MyRoute {
     this._route.use('/auth', new AuthRoute().route);
     this._route.use('/class', new ClassRoute().route);
     this._route.use('/user', new UserRoute().route);
+    this._route.use('/role', new RoleRoute().route);
   }
 
   public get route(): Router {
