@@ -2,7 +2,8 @@ import { Router } from 'express';
 import { ClassController } from '../controllers';
 import { body, param } from 'express-validator';
 import IRoute from './i.route';
-import { ValidateRequest } from '../middlewares';
+import { AuthMiddleware, ValidateRequest } from '../middlewares';
+import { ROLES } from '@/utils/role.type';
 
 export default class ClassRoute implements IRoute<ClassController> {
   public readonly route: Router;
@@ -29,6 +30,7 @@ export default class ClassRoute implements IRoute<ClassController> {
     );
     this.route.post(
       '/',
+      AuthMiddleware.isPermission([ROLES.MANAGER, ROLES.PROFESSOR]),
       body('code')
         .isString()
         .withMessage('code is a string')
@@ -40,6 +42,7 @@ export default class ClassRoute implements IRoute<ClassController> {
     );
     this.route.put(
       '/',
+      AuthMiddleware.isPermission([ROLES.MANAGER, ROLES.PROFESSOR]),
       body('id').isString(),
       body('code')
         .isString()
@@ -52,6 +55,7 @@ export default class ClassRoute implements IRoute<ClassController> {
     );
     this.route.delete(
       '/:id',
+      AuthMiddleware.isPermission([ROLES.MANAGER, ROLES.PROFESSOR]),
       param('id').isString(),
       ValidateRequest.validateRequest,
       this.controller.remove
@@ -62,6 +66,6 @@ export default class ClassRoute implements IRoute<ClassController> {
    * Setup Middleware for all Class Controller
    */
   public setupGlobalMiddleware(): void {
-    //   this.router.use(middlewares.isAuth);
+    this.route.use(AuthMiddleware.isAuth);
   }
 }

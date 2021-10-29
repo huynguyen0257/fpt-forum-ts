@@ -1,6 +1,7 @@
 import { Schema, model, Document, Model } from 'mongoose';
 import bcrypt from 'bcryptjs';
 import logger from '@/loaders/logger';
+import { Role } from '.';
 
 interface IUser extends Document {
   username: string;

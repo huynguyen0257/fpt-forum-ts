@@ -1,9 +1,10 @@
 import { Router } from 'express';
 import { UserController } from '../controllers';
 import IRoute from './i.route';
-import { ValidateRequest } from '../middlewares';
+import { ValidateRequest, AuthMiddleware } from '../middlewares';
 import { body, param } from 'express-validator';
-import AuthMiddleware from '../middlewares/auth';
+import { ROLES } from '@/utils/role.type';
+import { NextFunction, Request, Response } from 'express';
 
 export default class UserRoute implements IRoute<UserController> {
   public readonly route: Router;
@@ -20,15 +21,21 @@ export default class UserRoute implements IRoute<UserController> {
    * Middleware as well
    */
   public init(): void {
-    this.route.get('/', this.controller.getAll);
+    this.route.get(
+      '/',
+      AuthMiddleware.isPermission([ROLES.MANAGER, ROLES.PROFESSOR]),
+      this.controller.getAll
+    );
     this.route.get(
       '/:id',
+      AuthMiddleware.isPermission([ROLES.MANAGER, ROLES.PROFESSOR]),
       param('id').isString(),
       ValidateRequest.validateRequest,
       this.controller.getById
     );
     this.route.post(
       '/',
+      AuthMiddleware.isPermission([ROLES.MANAGER]),
       body('username').isString().withMessage('username is required'),
       body('password').isString().withMessage('password is required'),
       body('fullName').isString().withMessage('fullName is required'),
@@ -41,6 +48,7 @@ export default class UserRoute implements IRoute<UserController> {
     );
     this.route.put(
       '/',
+      AuthMiddleware.isPermission([ROLES.MANAGER]),
       body('id').isString().withMessage('id is required'),
       body('fullName').isString().withMessage('fullName is required'),
       body('phoneNumber')
@@ -52,6 +60,7 @@ export default class UserRoute implements IRoute<UserController> {
     );
     this.route.put(
       '/role',
+      // AuthMiddleware.isPermission([ROLES.MANAGER]),
       body('id').isString().withMessage('id is required'),
       body('roleIds').notEmpty().withMessage('roleIds is required'),
       ValidateRequest.validateRequest,
@@ -59,6 +68,7 @@ export default class UserRoute implements IRoute<UserController> {
     );
     this.route.delete(
       '/:id',
+      AuthMiddleware.isPermission([ROLES.MANAGER]),
       param('id').isString(),
       ValidateRequest.validateRequest,
       this.controller.remove

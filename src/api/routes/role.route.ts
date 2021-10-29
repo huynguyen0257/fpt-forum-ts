@@ -2,7 +2,8 @@ import { Router } from 'express';
 import { RoleController } from '../controllers';
 import { body, param } from 'express-validator';
 import IRoute from './i.route';
-import { ValidateRequest } from '../middlewares';
+import { AuthMiddleware, ValidateRequest } from '../middlewares';
+import { ROLES } from '@/utils/role.type';
 
 export default class RoleRoute implements IRoute<RoleController> {
   public readonly route: Router;
@@ -43,6 +44,7 @@ export default class RoleRoute implements IRoute<RoleController> {
    * Setup Middleware for all Role Controller
    */
   public setupGlobalMiddleware(): void {
-    //   this.router.use(middlewares.isAuth);
+    this.route.use(AuthMiddleware.isAuth);
+    this.route.use(AuthMiddleware.isPermission([ROLES.MANAGER]));
   }
 }

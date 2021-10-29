@@ -1,4 +1,4 @@
-import { UserDoc, ClassDoc, RoleDoc } from '@/models';
+import { UserDoc, ClassDoc, RoleDoc, Role, Class } from '@/models';
 import { BaseService, IService } from './base.service';
 import { inject, injectable } from 'inversify';
 import { INVERSIFY } from '@/utils/inversify.type';
@@ -6,8 +6,7 @@ import { IRoleRepository, IUserRepository } from '@/repositories';
 import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
 import InversifyLoader from '@/loaders/inversify';
-import { ErrorMsg } from '@/utils/appError';
-import { error } from 'winston';
+import logger from '@/loaders/logger';
 
 export interface IUserService extends IService<UserDoc> {
   checkPassword(password: string, user: UserDoc): Promise<boolean>;
@@ -28,42 +27,61 @@ export class UserService
   public async findById(id: string): Promise<UserDoc> {
     return await this._repository
       .findById(id)
-      .populate({ path: 'classes', model: mongoose.model<ClassDoc>('Class') });
+      .populate({ path: 'roles', model: Role.model })
+      .populate({ path: 'classes', model: Class.model });
   }
   public async findOne(cond?: object): Promise<UserDoc> {
     return await this._repository
       .findOne(cond)
-      .populate({ path: 'classes', model: mongoose.model<ClassDoc>('Class') });
+      .populate({ path: 'roles', model: Role.model })
+      .populate({ path: 'classes', model: Class.model });
   }
-  public async addRole(model: UserDoc, roleIds: string[]): Promise<boolean> {
+  public async addRole(user: UserDoc, roleIds: string[]): Promise<boolean> {
     try {
-      model.roles = roleIds as any[];
       const savedRoles: RoleDoc[] = [];
-      let count = 0;
+      const oldUserRoles: any[] = user.roles;
+      const newUserRoleIds: any[] = roleIds;
       try {
-        for (const roleId of roleIds) {
-          count++;
+        // add user to role & add role to user
+        for (const roleId of newUserRoleIds) {
+          // Update role.users of newUserRoles
           const role = await this._roleRepo.findById(roleId);
-          if (role == null) throw new Error('something error');
-          if (role.users.indexOf(model._id) == -1) {
-            role.users.push(model._id);
-            await role.save(); //await to avoid save() the same document multiple time in parallel when error happen
+          if (role == null)
+            throw new Error(`addRole Service Exeption no roleId ${roleId}`);
+
+          // Adding user while role.users not contain it
+          if (role.users.indexOf(user._id) === -1) {
+            role.users.push(user._id);
+            // await to avoid save() the same document multiple time in parallel when error happen
+            await role.save();
             savedRoles.push(role);
           }
         }
+
+        // remove user not available in role
+        for (const oleUserRole of oldUserRoles) {
+          if (newUserRoleIds.indexOf(oleUserRole._id + '') === -1) {
+            const oldRole = await this._roleRepo.findById(oleUserRole._id);
+            oldRole.users.remove(user._id);
+            oldRole.save();
+          }
+        }
       } catch (error) {
+        // Remove previous updated role when update current role have exception
         for (const savedRole of savedRoles) {
-          const index = savedRole.users.indexOf(model._id);
+          const index = savedRole.users.indexOf(user._id);
           if (index > -1) {
             savedRole.users.splice(index, 1);
             savedRole.save();
           }
         }
-        throw new Error('something error');
+        throw error;
       }
-      model.save();
+      user.roles = newUserRoleIds;
+      await user.save();
       return true;
     } catch (error) {
+      logger.error(error);
       return false;
     }
   }
@@ -73,5 +91,13 @@ export class UserService
     user: UserDoc
   ): Promise<boolean> {
     return await bcrypt.compare(password, user.password);
+  }
+
+  static {
+    if (!Array.prototype.remove) {
+      Array.prototype.remove = function <T>(this: T[], elem: T): T[] {
+        return this.filter((e) => e !== elem);
+      };
+    }
   }
 }

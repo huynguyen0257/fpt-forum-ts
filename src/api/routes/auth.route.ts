@@ -9,6 +9,7 @@ export default class AuthRoute implements IRoute<AuthController> {
   constructor() {
     this.route = Router();
     this.controller = new AuthController();
+    this.setupGlobalMiddleware();
     this.init();
   }
 
@@ -17,7 +18,5 @@ export default class AuthRoute implements IRoute<AuthController> {
     this.route.post('/logout', this.controller.logout);
     this.route.post('/signup', this.controller.signup);
   }
-  setupGlobalMiddleware(): void {
-    throw new Error('Method not implemented.');
-  }
+  setupGlobalMiddleware(): void {}
 }

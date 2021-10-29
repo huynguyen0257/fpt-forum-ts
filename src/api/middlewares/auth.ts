@@ -3,10 +3,11 @@ import InversifyLoader from '@/loaders/inversify';
 import { IUserService } from '@/services';
 import { ErrorMsg } from '@/utils/appError';
 import { INVERSIFY } from '@/utils/inversify.type';
-import { Request, Response, NextFunction } from 'express';
+import { Request, Response, NextFunction, Handler } from 'express';
 import jwt, { JwtPayload } from 'jsonwebtoken';
+import { Role, RoleDoc } from '@/models';
 
-export default class AuthMiddleware {
+export class AuthMiddleware {
   static userService: IUserService = InversifyLoader.container.get(
     INVERSIFY.IUserService
   );
@@ -39,7 +40,9 @@ export default class AuthMiddleware {
 
     // 3) check if the user is exist (not deleted)
     try {
-      const user = await AuthMiddleware.userService.findById(decode.id);
+      const user = await (
+        await AuthMiddleware.userService.findById(decode.id)
+      ).populate({ path: 'roles', model: Role.model });
       if (!user)
         return next(new ErrorMsg(401, 'This user is no longer exist.'));
       req.currentUser = user;
@@ -47,5 +50,17 @@ export default class AuthMiddleware {
     } catch (error) {
       return next(error);
     }
+  }
+
+  public static isPermission(roleNames: symbol[]): Handler {
+    return async (req: Request, res: Response, next: NextFunction) => {
+      const rNames = roleNames.map((r) => r.description);
+      for (const role of req.currentUser.roles as RoleDoc[]) {
+        if (rNames.indexOf(role.roleName) > -1) {
+          return next();
+        }
+      }
+      next(new ErrorMsg(401, 'Do not have permission'));
+    };
   }
 }
