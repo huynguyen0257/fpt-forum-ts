@@ -11,7 +11,7 @@ export class ValidateRequest {
     const errors = validationResult(req);
 
     if (!errors.isEmpty()) {
-      return next(new ErrorMsg(400, errors.array()));
+      return next(new ErrorMsg(400, 'ValidateRequest', null, errors.array()));
     }
 
     return next();

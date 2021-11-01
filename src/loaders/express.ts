@@ -5,7 +5,7 @@ import logger from './logger';
 import config from '../config';
 import { ErrorMsg } from '@/utils/appError';
 import MyRoute from '@/api/routes';
-import { Container } from 'inversify';
+import MyPassport from './passport';
 
 export default class ExpressLoader {
   private readonly _app: Application;
@@ -34,6 +34,8 @@ export default class ExpressLoader {
       logger.info(`${req.method} ${req.originalUrl}`);
       next();
     });
+
+    this._app.use(MyPassport.passport.initialize());
   }
   private async setupRoutes() {
     this._app.use(config.api.prefix, new MyRoute().route);
@@ -56,7 +58,7 @@ export default class ExpressLoader {
         /**
          * Handle 401 thrown by express-jwt library
          */
-        if (err.name === 'UnauthorizedError') {
+        if (err.name === 'JsonWebTokenError') {
           return res.status(err.status).send({ message: err.message }).end();
         }
         return next(err);
@@ -77,7 +79,11 @@ export default class ExpressLoader {
         res
           .status(err.status)
           .json({
-            error: err.message || err
+            error: {
+              name: err.name,
+              message: err.message,
+              stack: err.stack
+            }
           })
           .end();
       }

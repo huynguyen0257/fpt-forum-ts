@@ -6,6 +6,7 @@ import { INVERSIFY } from '@/utils/inversify.type';
 import { ErrorMsg } from '@/utils/appError';
 import jwt from 'jsonwebtoken';
 import config from '@/config';
+import MyPassport from '@/loaders/passport';
 
 export default class AuthController {
   private _userService: IUserService;
@@ -20,25 +21,31 @@ export default class AuthController {
     res: Response,
     next: NextFunction
   ): Promise<Response | void> {
-    try {
-      const { username, password } = req.body;
-      const user = await this._userService.findOne({ username });
-      if (!user || !(await this._userService.checkPassword(password, user))) {
-        return next(new ErrorMsg(401, 'Username or Password is wrong'));
+    MyPassport.passport.authenticate('local', function (err, user) {
+      console.log(JSON.stringify({ err, user }));
+      // handle error
+      if (err) {
+        return res.status(500).json({ message: err });
       }
 
-      // Generate token
-      const token = this.createToken(user._id);
+      // login false
+      if (!user) {
+        return res.send('username & password not valid');
+      }
 
+      // login success
+      req.user = user;
       user.password = undefined;
       user.classes = undefined;
+      // const token = AuthController.createToken(user._id);
+      const token = AuthController.createToken({
+        id: '616ce801cabd2feed5a2923d'
+      });
       return res.status(200).json({
         token,
         user
       });
-    } catch (error) {
-      return next(error);
-    }
+    })(req, res, next);
   }
   @bind()
   public async signup(
@@ -51,7 +58,7 @@ export default class AuthController {
         req.body;
       let user = await this._userService.findOne({ username });
       if (user) {
-        return next(new ErrorMsg(401, 'Username is existed!'));
+        return next(new ErrorMsg(401, 'Bad request', 'Username is existed!'));
       }
 
       user = await this._userService.create({
@@ -63,7 +70,7 @@ export default class AuthController {
       });
 
       // Generate token
-      const token = this.createToken(user._id);
+      const token = AuthController.createToken(user._id);
 
       user.password = undefined;
       return res.status(200).json({
@@ -87,7 +94,7 @@ export default class AuthController {
       return next(error);
     }
   }
-  private createToken(id: any) {
+  private static createToken(id: any): string {
     return jwt.sign(
       {
         id

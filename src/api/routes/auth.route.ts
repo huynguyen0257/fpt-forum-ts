@@ -18,5 +18,6 @@ export default class AuthRoute implements IRoute<AuthController> {
     this.route.post('/logout', this.controller.logout);
     this.route.post('/signup', this.controller.signup);
   }
+  /* tslint:disable:no-empty */
   setupGlobalMiddleware(): void {}
 }
