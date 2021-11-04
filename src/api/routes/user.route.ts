@@ -4,7 +4,6 @@ import IRoute from './i.route';
 import { ValidateRequest, AuthMiddleware } from '../middlewares';
 import { body, param } from 'express-validator';
 import { ROLES } from '@/utils/role.type';
-import { NextFunction, Request, Response } from 'express';
 
 export default class UserRoute implements IRoute<UserController> {
   public readonly route: Router;

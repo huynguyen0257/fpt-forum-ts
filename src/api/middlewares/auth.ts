@@ -4,8 +4,7 @@ import { IUserService } from '@/services';
 import { ErrorMsg } from '@/utils/appError';
 import { INVERSIFY } from '@/utils/inversify.type';
 import { Request, Response, NextFunction, Handler } from 'express';
-import jwt, { JwtPayload } from 'jsonwebtoken';
-import { Role, RoleDoc } from '@/models';
+import { RoleDoc } from '@/models';
 import MyPassport from '@/loaders/passport';
 
 export class AuthMiddleware {
@@ -14,7 +13,7 @@ export class AuthMiddleware {
   );
 
   public static async isAuth(req: Request, res: Response, next: NextFunction) {
-    MyPassport.passport.authenticate('jwt', async function (err, user, info) {
+    MyPassport.passport.authenticate('jwt', async (err, user, info) => {
       if (err) {
         return next(new ErrorMsg(400, 'Bad Request', err));
       }

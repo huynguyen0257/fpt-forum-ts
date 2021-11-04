@@ -1,17 +1,19 @@
 import { Schema, model, Document, Model } from 'mongoose';
 import bcrypt from 'bcryptjs';
 import logger from '@/loaders/logger';
-import { Role } from '.';
+import { ClassDoc, Role } from '.';
 
-interface IUser extends Document {
-  username: string;
-  password: string;
-  fullName: string;
-  phoneNumber: string;
-  emailAddress: string;
-  classes: object[] | null;
-  roles: object[] | null;
-  created: Date;
+export interface IUser {
+  username?: string;
+  password?: string;
+  fullName?: string;
+  phoneNumber?: string;
+  emailAddress?: string;
+  facebook?: string;
+  tokens?: AuthToken[];
+  classes?: object[] | null;
+  roles?: object[] | null;
+  created?: Date;
 }
 
 export interface UserDoc extends Document {
@@ -20,9 +22,15 @@ export interface UserDoc extends Document {
   fullName: string;
   phoneNumber: string;
   emailAddress: string;
+  facebook: string;
+  tokens: AuthToken[];
   classes: object[] | null;
   roles: object[] | null;
   created: Date;
+}
+export interface AuthToken {
+  accessToken: string;
+  kind: string;
 }
 
 export interface UserModel extends Model<IUser> {
@@ -30,17 +38,17 @@ export interface UserModel extends Model<IUser> {
 }
 
 export class User {
-  public static model: Model<IUser>;
+  public static model: Model<UserDoc>;
 
   // static block, run when runtime load all files - Only file use in 'import' keyword, belong to /src/app.ts
   static {
     const schema = new Schema({
-      username: { type: String, required: true },
-      password: { type: String, required: true },
+      username: String,
+      password: String,
       fullName: { type: String, required: true },
       phoneNumber: {
         type: String,
-        required: true,
+        // required: true,
         match: [
           /(03|05|07|08|09|01[2|6|8|9])+([0-9]{8})\b/,
           'Please fill in a valid phone number'
@@ -57,6 +65,11 @@ export class User {
           'Please fill a valid email address'
         ]
       },
+      facebook: {
+        type: String,
+        unique: true
+      },
+      tokens: Array,
       classes: [{ type: Schema.Types.ObjectId, ref: 'Class' }],
       roles: [{ type: Schema.Types.ObjectId, ref: 'Role' }],
       created: { type: Date, default: Date.now }
@@ -68,10 +81,11 @@ export class User {
 
     schema.pre('save', function (next) {
       logger.info('PreSave mongoose middlewares');
-      if (this.isNew) this.password = bcrypt.hashSync(this.password, 10);
+      if (this.isNew && this.password)
+        this.password = bcrypt.hashSync(this.password, 10);
       next();
     });
 
-    this.model = model<IUser>('User', schema);
+    this.model = model<UserDoc>('User', schema);
   }
 }

@@ -6,6 +6,7 @@ export class UserVM {
   @Expose() fullName: string;
   @Expose() phoneNumber: string;
   @Expose() emailAddress: string;
+  @Expose() facebook: string;
   @Expose() classes?: object[];
   @Expose() created: string;
 }

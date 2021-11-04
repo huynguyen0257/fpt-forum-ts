@@ -38,5 +38,12 @@ export default {
     prefix: '/api/v1'
   },
 
-  nodeEnv: process.env.NODE_ENV || 'product'
+  nodeEnv: process.env.NODE_ENV || 'product',
+
+  /**
+   * passport-facebook config
+   */
+  fb_app_id: process.env.FACEBOOK_APP_ID,
+  fb_app_secret: process.env.FACEBOOK_APP_SECRET,
+  fb_callback_url: process.env.FACEBOOK_CALL_BACK_URL
 };

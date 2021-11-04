@@ -1,4 +1,4 @@
-import { NextFunction, Request, Response } from 'express';
+import { NextFunction, Request, Response, Handler } from 'express';
 import { bind } from 'decko';
 import { IUserService } from '@/services';
 import InversifyLoader from '@/loaders/inversify';
@@ -21,8 +21,8 @@ export default class AuthController {
     res: Response,
     next: NextFunction
   ): Promise<Response | void> {
-    MyPassport.passport.authenticate('local', function (err, user) {
-      console.log(JSON.stringify({ err, user }));
+    MyPassport.passport.authenticate('local', (err, user) => {
+      console.log(`err, user: ${JSON.stringify({ err, user })}`);
       // handle error
       if (err) {
         return res.status(500).json({ message: err });
@@ -30,23 +30,68 @@ export default class AuthController {
 
       // login false
       if (!user) {
-        return res.send('username & password not valid');
+        return res.status(401).json({ message: 'email & password not valid' });
       }
 
       // login success
-      req.user = user;
       user.password = undefined;
       user.classes = undefined;
-      // const token = AuthController.createToken(user._id);
-      const token = AuthController.createToken({
-        id: '616ce801cabd2feed5a2923d'
-      });
+      const token = AuthController.createToken(user._id);
+
       return res.status(200).json({
         token,
         user
       });
     })(req, res, next);
   }
+
+  @bind()
+  public async loginByFacebook(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<Response | void> {
+    MyPassport.passport.authenticate('facebook', {
+      scope: ['email', 'public_profile']
+    })(req, res, next);
+  }
+
+  @bind()
+  public async facebookCallback(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<Response | void> {
+    MyPassport.passport.authenticate('facebook', (err, user, info) => {
+      console.log('******* In auth/facebook/callback *******');
+      console.log(`\t-error: ${err}`);
+      console.log(`\t-user: ${JSON.stringify(user)}`);
+      console.log(`\t-info: ${JSON.stringify(info)}`);
+      // handle error
+      if (err) {
+        return next(new ErrorMsg(500, 'FBCallback error', err.message, err));
+      }
+
+      // login false
+      if (!user) {
+        return next(
+          new ErrorMsg(401, 'FBCallback null user', info.message, info)
+        );
+      }
+
+      // login success
+      user.password = undefined;
+      user.classes = undefined;
+      user.tokens = undefined;
+      const token = AuthController.createToken(user._id);
+
+      return res.status(200).json({
+        token,
+        user
+      });
+    })(req, res, next);
+  }
+
   @bind()
   public async signup(
     req: Request,
