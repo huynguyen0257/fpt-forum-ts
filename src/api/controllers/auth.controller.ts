@@ -4,6 +4,7 @@ import { IUserService } from '@/services';
 import InversifyLoader from '@/loaders/inversify';
 import { INVERSIFY } from '@/utils/inversify.type';
 import { ErrorMsg } from '@/utils/appError';
+import fs from 'fs';
 import jwt from 'jsonwebtoken';
 import config from '@/config';
 import MyPassport from '@/loaders/passport';
@@ -144,8 +145,9 @@ export default class AuthController {
       {
         id
       },
-      config.jwtSecret,
+      config.jwtPrivateKey,
       {
+        algorithm: 'RS256',
         expiresIn: config.jwtExpiresIn
       }
     );

@@ -27,14 +27,30 @@ export class UserService
   public async findById(id: string): Promise<UserDoc> {
     return await this._repository
       .findById(id)
-      .populate({ path: 'roles', model: Role.model })
-      .populate({ path: 'classes', model: Class.model });
+      .populate({
+        path: 'roles',
+        model: Role.model,
+        select: 'roleName'
+      })
+      .populate({
+        path: 'classes',
+        model: Class.model,
+        select: 'code maxStudent'
+      });
   }
   public async findOne(cond?: object): Promise<UserDoc> {
     return await this._repository
       .findOne(cond)
-      .populate({ path: 'roles', model: Role.model })
-      .populate({ path: 'classes', model: Class.model });
+      .populate({
+        path: 'roles',
+        model: Role.model,
+        select: 'roleName'
+      })
+      .populate({
+        path: 'classes',
+        model: Class.model,
+        select: 'code maxStudent'
+      });
   }
   public async addRole(user: UserDoc, roleIds: string[]): Promise<boolean> {
     try {

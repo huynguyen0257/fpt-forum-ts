@@ -1,4 +1,5 @@
 import dotenv from 'dotenv';
+import fs from 'fs';
 
 const envFound = dotenv.config({
   path: './.env.example'
@@ -21,7 +22,8 @@ export default {
   /**
    * Your secret sauce
    */
-  jwtSecret: process.env.JWT_SECRET,
+  jwtPrivateKey: fs.readFileSync(process.env.JWT_PRIVATE_KEY_PATH),
+  jwtPublicKey: fs.readFileSync(process.env.JWT_PUBLIC_KEY_PATH),
   jwtExpiresIn: process.env.JWT_EXPIRES_IN,
 
   /**
