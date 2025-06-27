@@ -40,8 +40,8 @@ export abstract class BaseService<T extends Document, R extends IRepository<T>>
   }
 
   public async update(id: Types.ObjectId, data: object): Promise<boolean> {
-    const updateResult = this._repository.updateOne(id, data as any);
-    return (await updateResult).acknowledged;
+    const updateResult = await this._repository.updateOne(id, data as any);
+    return updateResult.acknowledged;
   }
   public async delete(id: Types.ObjectId): Promise<boolean> {
     const deleteResult = await this._repository.deleteOne(id);

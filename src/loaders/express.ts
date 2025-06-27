@@ -22,6 +22,7 @@ export default class ExpressLoader {
     this._app.use(express.urlencoded({ extended: false }));
     this._app.use(cookieParser());
   }
+
   private async setupMiddleware() {
     this._app.use((req, res, next) => {
       req.body = camelcaseKeys(req.body, { deep: true });
@@ -37,9 +38,11 @@ export default class ExpressLoader {
 
     this._app.use(MyPassport.passport.initialize());
   }
+
   private async setupRoutes() {
     this._app.use(config.api.prefix, new MyRoute().route);
   }
+
   private async setupHandleUndefinedRoutes() {
     this._app.use('*', (req, res, next) => {
       //   const err = new AppError(404, "fail", "undefined route");
